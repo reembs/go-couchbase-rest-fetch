@@ -1,2 +1,3 @@
 # go-couchbase-rest-fetch
-A tiny Couchbase read-only HTTP server in Go
+Multi-fetch HTTP gateway for Couchbase. Useful for services that do reads but don't want to get all mixed up with the SDK code. Written in Go.
+
