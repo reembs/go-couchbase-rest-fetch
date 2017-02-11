@@ -32,10 +32,10 @@ func GetFuture(bucket gocb.Bucket, key string, out chan <- map[string]interface{
 }
 
 func main() {
-	connectionStringPtr := flag.String("host", "", "Couchbase connection string")
-	buckerNamePtr := flag.String("bucket", "", "Bucket to connect to")
-	buckerPasswordPtr := flag.String("password", "", "Bucket to connect to")
-	portPtr := flag.Int("port", 8080, "Bucket to connect to")
+	connectionStringPtr := flag.String("host", "", "Couchbase connection string (required)")
+	buckerNamePtr := flag.String("bucket", "", "Bucket to connect to (required)")
+	buckerPasswordPtr := flag.String("password", "", "Bucket password")
+	portPtr := flag.Int("port", 8080, "Port to listen on")
 
 	flag.Parse()
 
@@ -56,7 +56,7 @@ func main() {
 	log.Printf("Opened bucket '%s' successfully\n", *buckerNamePtr)
 
 	api := rest.NewApi()
-	api.Use(rest.DefaultDevStack...)
+	api.Use(rest.DefaultProdStack...)
 	router, err := rest.MakeRouter(
 		rest.Get("/get/#key", func(w rest.ResponseWriter, req *rest.Request) {
 			result := make(chan map[string]interface{})
