@@ -3,9 +3,9 @@ Multi-fetch HTTP gateway for Couchbase. Useful for services that do reads but do
 
 HTTP server has two endpoints:
 
-* `/get/<KEY>`
+* `/get/<key>`
   * Fetch a single key.
-* `/mget/<KEYS>`
+* `/mget/<keys>`
   * Fetch keys in parallel. List is comma delimited.
 
 
@@ -20,3 +20,5 @@ Usage of cb-rest-fetch:
   -port int
         Port to listen on (default 8080)
 ```
+
+Deploy using docker on the Couchbase server localhost: `docker run -p 8080:8080 --network=host -ti reembs/go-couchbase-rest-fetch -host couchbase://127.0.0.1 -password <bucketpass> -bucket <bucket>`
