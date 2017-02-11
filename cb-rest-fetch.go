@@ -11,24 +11,22 @@ import (
 	"strings"
 )
 
-func GetFuture(bucket gocb.Bucket, key string, out chan <- map[string]interface{}) {
-	go func() {
-		var wrappedValue = make(map[string]interface{})
+func Get(bucket gocb.Bucket, key string, out chan <- map[string]interface{}) {
+	var wrappedValue = make(map[string]interface{})
 
-		var valueOut interface{}
-		cas, err := bucket.Get(key, &valueOut)
+	var valueOut interface{}
+	cas, err := bucket.Get(key, &valueOut)
 
-		wrappedValue["key"] = key
+	wrappedValue["key"] = key
 
-		if err != nil {
-			wrappedValue["error"] = err.Error()
-		} else {
-			wrappedValue["cas"] = cas
-			wrappedValue["value"] = &valueOut
-		}
+	if err != nil {
+		wrappedValue["error"] = err.Error()
+	} else {
+		wrappedValue["cas"] = cas
+		wrappedValue["value"] = &valueOut
+	}
 
-		out <- wrappedValue
-	}()
+	out <- wrappedValue
 }
 
 func main() {
@@ -60,14 +58,14 @@ func main() {
 	router, err := rest.MakeRouter(
 		rest.Get("/get/#key", func(w rest.ResponseWriter, req *rest.Request) {
 			result := make(chan map[string]interface{})
-			GetFuture(*bucket, req.PathParams["key"], result)
+			go Get(*bucket, req.PathParams["key"], result)
 			w.WriteJson(<- result)
 		}),
 		rest.Get("/mget/#keys", func(w rest.ResponseWriter, req *rest.Request) {
 			keySlice := strings.Split(req.PathParams["keys"], ",")
 			results := make(chan map[string]interface{}, len(keySlice))
 			for _, key := range keySlice {
-				GetFuture(*bucket, key, results)
+				go Get(*bucket, key, results)
 			}
 
 			resultDocs := make([]map[string]interface{}, len(keySlice))
