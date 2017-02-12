@@ -6,7 +6,7 @@ HTTP server has two endpoints:
 * `/get/<key>`
   * Fetch a single key.
 * `/mget/<keys>`
-  * Fetch keys in parallel. List is comma delimited.
+  * Fetch keys in parallel. List is comma separated.
 
 
 ```
