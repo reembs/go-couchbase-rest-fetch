@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-func Get(bucket gocb.Bucket, key string, out chan <- map[string]interface{}) {
+func Get(bucket gocb.Bucket, key string, out chan <- *map[string]interface{}) {
 	var wrappedValue = make(map[string]interface{})
 
 	var valueOut interface{}
@@ -26,7 +26,7 @@ func Get(bucket gocb.Bucket, key string, out chan <- map[string]interface{}) {
 		wrappedValue["value"] = &valueOut
 	}
 
-	out <- wrappedValue
+	out <- &wrappedValue
 }
 
 func main() {
@@ -57,20 +57,20 @@ func main() {
 	api.Use(rest.DefaultProdStack...)
 	router, err := rest.MakeRouter(
 		rest.Get("/get/#key", func(w rest.ResponseWriter, req *rest.Request) {
-			result := make(chan map[string]interface{})
+			result := make(chan *map[string]interface{})
 			go Get(*bucket, req.PathParams["key"], result)
 			w.WriteJson(<- result)
 		}),
 		rest.Get("/mget/#keys", func(w rest.ResponseWriter, req *rest.Request) {
 			keySlice := strings.Split(req.PathParams["keys"], ",")
-			results := make(chan map[string]interface{}, len(keySlice))
+			results := make(chan *map[string]interface{}, len(keySlice))
 			for _, key := range keySlice {
 				go Get(*bucket, key, results)
 			}
 
-			resultDocs := make([]map[string]interface{}, len(keySlice))
+			resultDocs := make([]*map[string]interface{}, len(keySlice))
 			for i:=0 ; i<len(keySlice) ; i++  {
-				resultDocs[i] = <-results
+				resultDocs[i] = <- results
 			}
 
 			w.WriteJson(resultDocs)
